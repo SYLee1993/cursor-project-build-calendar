@@ -1,36 +1,55 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Build Calendar
 
-## Getting Started
+프로젝트 개발 일정을 월간 캘린더로 관리하는 Next.js 앱입니다.
 
-First, run the development server:
+## 기능
+
+- 월간 캘린더 (1일 ~ 말일, 일~토)
+- 날짜 클릭 또는 **프로젝트 추가** 버튼으로 프로젝트 등록
+- 프로젝트명, 개발 시작/완료일, 상태 관리
+- 상태: 개발예정 / 개발중 / 펜딩 / 개발취소 (색상 구분)
+- 년/월 선택 시 우측(모바일: 하단 Sheet)에 해당 월 프로젝트 목록 표시
+- 데이터는 브라우저 `localStorage`에 저장
+
+## 기술 스택
+
+- Next.js (App Router)
+- TypeScript
+- Tailwind CSS v4
+- shadcn/ui
+- date-fns
+
+## 로컬 실행
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+브라우저에서 [http://localhost:3000](http://localhost:3000) 접속
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 프로젝트 Skill
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+`.agents/skills/`에 프로젝트 레벨 skill이 설치되어 있습니다.
 
-## Learn More
+| Skill | 용도 |
+|-------|------|
+| `shadcn` | shadcn/ui 컴포넌트 관리 |
+| `nextjs` | Next.js App Router 패턴 |
+| `shadcn-setup-and-theming` | 테마·CSS 변수 설정 |
+| `create-pr` | GitHub PR 생성 |
+| `deploy-to-vercel` | Vercel 배포 |
+| `build-calendar` | 이 프로젝트 전용 컨벤션 |
 
-To learn more about Next.js, take a look at the following resources:
+## GitHub & Vercel 배포
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. GitHub repo 생성 후 push
+2. [Vercel](https://vercel.com)에서 GitHub repo import
+3. Framework Preset: **Next.js** (기본값)
+4. Deploy
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+> localStorage 데이터는 브라우저/기기별로 저장되며, 배포 URL 접속 시 해당 브라우저에만 데이터가 유지됩니다.
 
-## Deploy on Vercel
+## 데이터 키
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- localStorage: `build-calendar:projects`
