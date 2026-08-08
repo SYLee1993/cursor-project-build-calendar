@@ -1,13 +1,65 @@
-import type { ProjectStatus } from "@/types/project";
+import type { ProjectStatus, ProjectType } from "@/types/project";
 
 export const STORAGE_KEY = "build-calendar:projects";
 
+export const TYPE_LABELS: Record<ProjectType, string> = {
+  work: "Company",
+  cursor_project: "Project",
+  workout: "Workout",
+  personal: "Personal",
+  key_event: "Key Event",
+};
+
+export const TYPE_OPTIONS: ProjectType[] = [
+  "work",
+  "cursor_project",
+  "workout",
+  "personal",
+  "key_event",
+];
+
+export const TYPE_BADGE_CLASSES: Record<ProjectType, string> = {
+  work: "bg-neutral-200 text-neutral-800 dark:bg-neutral-300 dark:text-neutral-900",
+  cursor_project: "bg-yellow-400 text-yellow-950 dark:bg-yellow-400 dark:text-yellow-950",
+  workout: "bg-green-500 text-white dark:bg-green-500 dark:text-white",
+  personal: "bg-sky-400 text-white dark:bg-sky-400 dark:text-white",
+  key_event: "bg-red-500 text-white dark:bg-red-500 dark:text-white",
+};
+
+export const TYPE_BAR_COLORS: Record<ProjectType, string> = {
+  work: "bg-neutral-300 dark:bg-neutral-400",
+  cursor_project: "bg-yellow-400",
+  workout: "bg-green-500",
+  personal: "bg-sky-400",
+  key_event: "bg-red-500",
+};
+
+export const TYPE_BAR_TEXT_COLORS: Record<ProjectType, string> = {
+  work: "text-neutral-800 dark:text-neutral-900",
+  cursor_project: "text-yellow-950",
+  workout: "text-white",
+  personal: "text-white",
+  key_event: "text-white",
+};
+
+export const TYPE_CHECKBOX_CLASSES: Record<ProjectType, string> = {
+  work: "border-neutral-400/70 data-checked:border-neutral-400 data-checked:bg-neutral-300 data-checked:text-neutral-900 dark:data-checked:bg-neutral-400 dark:data-checked:text-neutral-900",
+  cursor_project:
+    "border-yellow-400/70 data-checked:border-yellow-400 data-checked:bg-yellow-400 data-checked:text-yellow-950 dark:data-checked:bg-yellow-400 dark:data-checked:text-yellow-950",
+  workout:
+    "border-green-500/70 data-checked:border-green-500 data-checked:bg-green-500 data-checked:text-white dark:data-checked:bg-green-500 dark:data-checked:text-white",
+  personal:
+    "border-sky-400/70 data-checked:border-sky-400 data-checked:bg-sky-400 data-checked:text-white dark:data-checked:bg-sky-400 dark:data-checked:text-white",
+  key_event:
+    "border-red-500/70 data-checked:border-red-500 data-checked:bg-red-500 data-checked:text-white dark:data-checked:bg-red-500 dark:data-checked:text-white",
+};
+
 export const STATUS_LABELS: Record<ProjectStatus, string> = {
-  completed: "개발완료",
-  scheduled: "개발예정",
-  in_progress: "개발중",
-  pending: "개발펜딩",
-  cancelled: "개발취소",
+  completed: "완료",
+  scheduled: "예정",
+  in_progress: "진행중",
+  pending: "펜딩",
+  cancelled: "취소",
 };
 
 export const STATUS_OPTIONS: ProjectStatus[] = [
@@ -17,22 +69,5 @@ export const STATUS_OPTIONS: ProjectStatus[] = [
   "pending",
   "cancelled",
 ];
-
-export const STATUS_BAR_COLORS: Record<ProjectStatus, string> = {
-  completed: "bg-violet-500",
-  scheduled: "bg-blue-500",
-  in_progress: "bg-green-500",
-  pending: "bg-amber-500",
-  cancelled: "bg-muted-foreground/50",
-};
-
-export const STATUS_BADGE_CLASSES: Record<ProjectStatus, string> = {
-  completed:
-    "bg-violet-100 text-violet-800 dark:bg-violet-950 dark:text-violet-200",
-  scheduled: "bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-200",
-  in_progress: "bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-200",
-  pending: "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-200",
-  cancelled: "bg-muted text-muted-foreground",
-};
 
 export const WEEKDAY_LABELS = ["일", "월", "화", "수", "목", "금", "토"] as const;

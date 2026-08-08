@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Cursor Project Build Calendar",
-  description: "프로젝트 개발 일정을 월간 캘린더로 관리하는 앱",
+  title: "Personal Calendar",
+  description: "개인 일정을 월간 캘린더로 관리하는 앱",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

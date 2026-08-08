@@ -1,8 +1,10 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
+import { TypeBadge } from "@/components/projects/type-badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -11,26 +13,29 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { TYPE_CHECKBOX_CLASSES, TYPE_OPTIONS } from "@/lib/constants";
+import { cn } from "@/lib/utils";
 import {
   CALENDAR_VIEW_LABELS,
   type CalendarViewMode,
 } from "@/types/calendar";
-import { cn } from "@/lib/utils";
+import type { ProjectType } from "@/types/project";
 
 interface CalendarHeaderProps {
   year: number;
   month: number;
   viewMode: CalendarViewMode;
+  selectedTypes: ProjectType[];
   onYearChange: (year: number) => void;
   onMonthChange: (month: number) => void;
   onViewModeChange: (mode: CalendarViewMode) => void;
+  onToggleType: (type: ProjectType, checked: boolean) => void;
   onPrevMonth: () => void;
   onNextMonth: () => void;
-  onAddProject: () => void;
 }
 
 const CURRENT_YEAR = new Date().getFullYear();
-const VIEW_MODES: CalendarViewMode[] = ["day", "month", "year"];
+const VIEW_MODES: CalendarViewMode[] = ["month", "quarter", "year"];
 
 const YEAR_ITEMS = Array.from({ length: 11 }, (_, index) => {
   const value = CURRENT_YEAR - 5 + index;
@@ -46,15 +51,16 @@ export function CalendarHeader({
   year,
   month,
   viewMode,
+  selectedTypes,
   onYearChange,
   onMonthChange,
   onViewModeChange,
+  onToggleType,
   onPrevMonth,
   onNextMonth,
-  onAddProject,
 }: CalendarHeaderProps) {
   return (
-    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
       <div className="flex flex-wrap items-center gap-2">
         <Button variant="outline" size="icon" onClick={onPrevMonth} aria-label="이전 달">
           <ChevronLeft className="size-4" />
@@ -103,26 +109,42 @@ export function CalendarHeader({
         </Button>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-3 lg:ml-auto lg:justify-end">
+        <div className="flex flex-wrap items-center gap-3">
+          {TYPE_OPTIONS.map((type) => (
+            <label
+              key={type}
+              className="flex cursor-pointer items-center gap-1.5 text-sm"
+            >
+              <Checkbox
+                checked={selectedTypes.includes(type)}
+                onCheckedChange={(checked) => onToggleType(type, checked === true)}
+                className={TYPE_CHECKBOX_CLASSES[type]}
+              />
+              <TypeBadge type={type} className="text-xs" />
+            </label>
+          ))}
+        </div>
+
         <div className="flex rounded-lg border bg-muted/30 p-0.5">
           {VIEW_MODES.map((mode) => (
             <Button
               key={mode}
               type="button"
               size="sm"
-              variant={viewMode === mode ? "default" : "ghost"}
-              className={cn("min-w-14 px-3", viewMode !== mode && "hover:bg-transparent")}
+              variant="ghost"
+              className={cn(
+                "min-w-14 px-3",
+                viewMode === mode
+                  ? "bg-neutral-500 text-white hover:bg-neutral-500/90 dark:bg-neutral-600 dark:hover:bg-neutral-600/90"
+                  : "text-muted-foreground hover:bg-muted/60",
+              )}
               onClick={() => onViewModeChange(mode)}
             >
               {CALENDAR_VIEW_LABELS[mode]}
             </Button>
           ))}
         </div>
-
-        <Button onClick={onAddProject}>
-          <Plus className="size-4" />
-          프로젝트 추가
-        </Button>
       </div>
     </div>
   );

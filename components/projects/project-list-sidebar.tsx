@@ -1,9 +1,10 @@
 "use client";
 
 import { StatusBadge } from "@/components/projects/status-badge";
+import { TypeBadge } from "@/components/projects/type-badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { STATUS_BAR_COLORS } from "@/lib/constants";
+import { TYPE_BAR_COLORS } from "@/lib/constants";
 import { formatDisplayDate } from "@/lib/date-utils";
 import { cn } from "@/lib/utils";
 import type { Project } from "@/types/project";
@@ -46,13 +47,16 @@ export function ProjectListSidebar({
                 >
                   <div className="mb-2 flex items-start justify-between gap-2">
                     <span className="line-clamp-2 font-medium">{project.name}</span>
-                    <StatusBadge status={project.status} />
+                    <div className="flex shrink-0 flex-col items-end gap-1">
+                      <TypeBadge type={project.type} className="text-[10px]" />
+                      <StatusBadge status={project.status} className="text-[10px]" />
+                    </div>
                   </div>
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     <span
                       className={cn(
                         "inline-block size-2 rounded-full",
-                        STATUS_BAR_COLORS[project.status],
+                        TYPE_BAR_COLORS[project.type],
                       )}
                     />
                     {formatDisplayDate(project.startDate)} ~{" "}

@@ -6,6 +6,7 @@ import { CalendarIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { StatusBadge } from "@/components/projects/status-badge";
+import { TypeBadge } from "@/components/projects/type-badge";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -31,13 +32,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { STATUS_LABELS, STATUS_OPTIONS } from "@/lib/constants";
+import { STATUS_LABELS, STATUS_OPTIONS, TYPE_LABELS, TYPE_OPTIONS } from "@/lib/constants";
 import { parseDateString, toDateString } from "@/lib/date-utils";
 import { cn } from "@/lib/utils";
-import type { Project, ProjectStatus } from "@/types/project";
+import type { Project, ProjectStatus, ProjectType } from "@/types/project";
 
 const STATUS_ITEMS = STATUS_OPTIONS.map((option) => ({
   label: STATUS_LABELS[option],
+  value: option,
+}));
+
+const TYPE_ITEMS = TYPE_OPTIONS.map((option) => ({
+  label: TYPE_LABELS[option],
   value: option,
 }));
 
@@ -49,6 +55,7 @@ interface ProjectFormDialogProps {
   onSave: (data: {
     name: string;
     description: string;
+    type: ProjectType;
     startDate: string;
     endDate: string;
     status: ProjectStatus;
@@ -110,6 +117,7 @@ export function ProjectFormDialog({
 }: ProjectFormDialogProps) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [type, setType] = useState<ProjectType>("cursor_project");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [status, setStatus] = useState<ProjectStatus>("scheduled");
@@ -120,6 +128,7 @@ export function ProjectFormDialog({
     if (project) {
       setName(project.name);
       setDescription(project.description ?? "");
+      setType(project.type ?? "cursor_project");
       setStartDate(project.startDate);
       setEndDate(project.endDate);
       setStatus(project.status);
@@ -129,6 +138,7 @@ export function ProjectFormDialog({
     const today = defaultStartDate ?? toDateString(new Date());
     setName("");
     setDescription("");
+    setType("cursor_project");
     setStartDate(today);
     setEndDate(today);
     setStatus("scheduled");
@@ -146,6 +156,7 @@ export function ProjectFormDialog({
     onSave({
       name: trimmed,
       description: description.trim(),
+      type,
       startDate: normalizedStart,
       endDate: normalizedEnd,
       status,
@@ -157,42 +168,64 @@ export function ProjectFormDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{project ? "프로젝트 수정" : "프로젝트 추가"}</DialogTitle>
+          <DialogTitle>{project ? "프로젝트 수정" : "일정 추가"}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4 py-2">
           <div className="space-y-2">
-            <Label htmlFor="project-name">프로젝트명</Label>
+            <Label htmlFor="project-name">일정명</Label>
             <Input
               id="project-name"
               value={name}
               onChange={(event) => setName(event.target.value)}
-              placeholder="프로젝트 이름"
+              placeholder="일정 이름"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="project-description">프로젝트 상세</Label>
+            <Label htmlFor="project-description">일정 상세</Label>
             <Textarea
               id="project-description"
               value={description}
               onChange={(event) => setDescription(event.target.value)}
-              placeholder="프로젝트 설명을 입력하세요"
+              placeholder="일정 설명을 입력하세요"
               rows={4}
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <DatePickerField
-              label="개발 시작일"
+              label="시작일"
               value={startDate}
               onChange={setStartDate}
             />
             <DatePickerField
-              label="개발 완료일"
+              label="완료일"
               value={endDate}
               onChange={setEndDate}
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label>카테고리</Label>
+            <Select
+              items={TYPE_ITEMS}
+              value={type}
+              onValueChange={(value) => setType(value as ProjectType)}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  {TYPE_ITEMS.map((item) => (
+                    <SelectItem key={item.value} value={item.value}>
+                      <TypeBadge type={item.value as ProjectType} />
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">

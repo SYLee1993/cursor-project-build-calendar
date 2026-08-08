@@ -1,4 +1,5 @@
 import {
+  addDays,
   eachDayOfInterval,
   endOfMonth,
   endOfWeek,
@@ -70,8 +71,65 @@ export function projectOverlapsMonth(
   return projectStart <= monthEnd && projectEnd >= monthStart;
 }
 
+export function projectOverlapsQuarter(
+  project: Project,
+  year: number,
+  quarter: number,
+): boolean {
+  const startMonth = (quarter - 1) * 3;
+  const quarterStart = startOfMonth(new Date(year, startMonth, 1));
+  const quarterEnd = endOfMonth(new Date(year, startMonth + 2, 1));
+  const projectStart = parseISO(project.startDate);
+  const projectEnd = parseISO(project.endDate);
+
+  return projectStart <= quarterEnd && projectEnd >= quarterStart;
+}
+
 export function getProjectsForDay(projects: Project[], day: Date): Project[] {
   return projects.filter((project) => isDateInProjectRange(day, project));
+}
+
+export function shiftProjectDates(
+  project: Project,
+  dayDelta: number,
+): Pick<Project, "startDate" | "endDate"> {
+  const start = parseISO(project.startDate);
+  const end = parseISO(project.endDate);
+
+  return {
+    startDate: toDateString(addDays(start, dayDelta)),
+    endDate: toDateString(addDays(end, dayDelta)),
+  };
+}
+
+export function resizeProjectStart(
+  project: Project,
+  dayDelta: number,
+): Pick<Project, "startDate" | "endDate"> {
+  const start = parseISO(project.startDate);
+  const end = parseISO(project.endDate);
+  const nextStart = addDays(start, dayDelta);
+
+  if (nextStart > end) {
+    return { startDate: toDateString(end), endDate: project.endDate };
+  }
+
+  return { startDate: toDateString(nextStart), endDate: project.endDate };
+}
+
+export function resizeProjectEnd(
+  project: Project,
+  dayDelta: number,
+): Pick<Project, "startDate" | "endDate"> {
+  const start = parseISO(project.startDate);
+  const end = parseISO(project.endDate);
+  const nextEnd = addDays(end, dayDelta);
+
+  if (nextEnd < start) {
+    return { startDate: project.startDate, endDate: toDateString(start) };
+  }
+
+  return { startDate: project.startDate, endDate: toDateString(nextEnd) };
 }
 
 export { isSameDay, isSameMonth };

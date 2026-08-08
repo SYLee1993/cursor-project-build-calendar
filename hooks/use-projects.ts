@@ -1,79 +1,144 @@
 "use client";
 
+import type { SupabaseClient, User } from "@supabase/supabase-js";
 import { useCallback, useEffect, useState } from "react";
 
-import { STORAGE_KEY } from "@/lib/constants";
-import { projectOverlapsMonth, projectOverlapsYear } from "@/lib/date-utils";
+import {
+  projectOverlapsMonth,
+  projectOverlapsQuarter,
+  projectOverlapsYear,
+} from "@/lib/date-utils";
+import {
+  fetchProjects,
+  migrateLocalStorageToSupabase,
+} from "@/lib/supabase/projects-api";
+import {
+  projectToInsert,
+  projectToUpdate,
+  rowToProject,
+} from "@/lib/supabase/project-mapper";
+import type { Database } from "@/types/database";
 import type { Project } from "@/types/project";
 
-function loadFromStorage(): Project[] {
-  if (typeof window === "undefined") return [];
-
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw) as Project[];
-    return Array.isArray(parsed)
-      ? parsed.map((project) => ({
-          ...project,
-          description: project.description ?? "",
-        }))
-      : [];
-  } catch {
-    return [];
-  }
+interface UseProjectsOptions {
+  supabase: SupabaseClient<Database>;
+  user: User | null;
 }
 
-function saveToStorage(projects: Project[]) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(projects));
-}
-
-export function useProjects() {
+export function useProjects({ supabase, user }: UseProjectsOptions) {
   const [projects, setProjects] = useState<Project[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const reloadProjects = useCallback(async () => {
+    if (!user) {
+      setProjects([]);
+      setIsLoaded(true);
+      return;
+    }
+
+    setError(null);
+    try {
+      await migrateLocalStorageToSupabase(supabase, user.id);
+      const nextProjects = await fetchProjects(supabase);
+      setProjects(nextProjects);
+    } catch (loadError) {
+      const message =
+        loadError instanceof Error ? loadError.message : "일정을 불러오지 못했습니다.";
+      setError(message);
+      setProjects([]);
+    } finally {
+      setIsLoaded(true);
+    }
+  }, [supabase, user]);
 
   useEffect(() => {
-    setProjects(loadFromStorage());
-    setIsLoaded(true);
-  }, []);
-
-  useEffect(() => {
-    if (!isLoaded) return;
-    saveToStorage(projects);
-  }, [projects, isLoaded]);
+    setIsLoaded(false);
+    void reloadProjects();
+  }, [reloadProjects]);
 
   const addProject = useCallback(
-    (data: Omit<Project, "id" | "createdAt">) => {
-      const project: Project = {
-        ...data,
-        id: crypto.randomUUID(),
-        createdAt: new Date().toISOString(),
-      };
-      setProjects((prev) => [...prev, project]);
+    async (data: Omit<Project, "id" | "createdAt">) => {
+      if (!user) return null;
+
+      const { data: row, error: insertError } = await supabase
+        .from("calendar_projects")
+        .insert(projectToInsert(user.id, data))
+        .select("*")
+        .single();
+
+      if (insertError) {
+        setError(insertError.message);
+        return null;
+      }
+
+      const project = rowToProject(row);
+      setProjects((prev) =>
+        [...prev, project].sort(
+          (a, b) =>
+            new Date(a.startDate).getTime() - new Date(b.startDate).getTime(),
+        ),
+      );
       return project;
     },
-    [],
+    [supabase, user],
   );
 
   const updateProject = useCallback(
-    (id: string, data: Omit<Project, "id" | "createdAt">) => {
+    async (id: string, data: Omit<Project, "id" | "createdAt">) => {
+      const { data: row, error: updateError } = await supabase
+        .from("calendar_projects")
+        .update(projectToUpdate(data))
+        .eq("id", id)
+        .select("*")
+        .single();
+
+      if (updateError) {
+        setError(updateError.message);
+        return;
+      }
+
+      const updated = rowToProject(row);
       setProjects((prev) =>
-        prev.map((project) =>
-          project.id === id ? { ...project, ...data } : project,
-        ),
+        prev.map((project) => (project.id === id ? updated : project)),
       );
     },
-    [],
+    [supabase],
   );
 
-  const deleteProject = useCallback((id: string) => {
-    setProjects((prev) => prev.filter((project) => project.id !== id));
-  }, []);
+  const deleteProject = useCallback(
+    async (id: string) => {
+      const { error: deleteError } = await supabase
+        .from("calendar_projects")
+        .delete()
+        .eq("id", id);
+
+      if (deleteError) {
+        setError(deleteError.message);
+        return;
+      }
+
+      setProjects((prev) => prev.filter((project) => project.id !== id));
+    },
+    [supabase],
+  );
 
   const getProjectsByMonth = useCallback(
     (year: number, month: number) => {
       return projects
         .filter((project) => projectOverlapsMonth(project, year, month))
+        .sort(
+          (a, b) =>
+            new Date(a.startDate).getTime() - new Date(b.startDate).getTime(),
+        );
+    },
+    [projects],
+  );
+
+  const getProjectsByQuarter = useCallback(
+    (year: number, quarter: number) => {
+      return projects
+        .filter((project) => projectOverlapsQuarter(project, year, quarter))
         .sort(
           (a, b) =>
             new Date(a.startDate).getTime() - new Date(b.startDate).getTime(),
@@ -97,10 +162,13 @@ export function useProjects() {
   return {
     projects,
     isLoaded,
+    error,
     addProject,
     updateProject,
     deleteProject,
     getProjectsByMonth,
+    getProjectsByQuarter,
     getProjectsByYear,
+    reloadProjects,
   };
 }

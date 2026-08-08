@@ -22,8 +22,10 @@ interface Project {
 
 ## Storage
 
-- localStorage key: `build-calendar:projects`
-- All persistence is client-side via `hooks/use-projects.ts`
+- Supabase org: **SYLee1993** → project: **Personal Calendar** (`nmdsvlifextgbyzqdinf`)
+- Supabase table: `public.calendar_projects` (user-scoped via RLS)
+- Legacy localStorage key: `build-calendar:projects` (auto-migrated on first login)
+- Env: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 
 ## Status Labels & Colors
 
