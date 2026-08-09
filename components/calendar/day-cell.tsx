@@ -4,6 +4,7 @@ import { isToday } from "date-fns";
 
 import { toDateString } from "@/lib/date-utils";
 import { getKoreanHolidayNames } from "@/lib/korean-holidays";
+import { getKoreanSolarTermNames } from "@/lib/korean-solar-terms";
 import { cn } from "@/lib/utils";
 
 interface DayCellProps {
@@ -28,7 +29,9 @@ export function DayCell({
   const isAdjacentMonth = !inCurrentMonth;
   const today = isToday(day);
   const holidayNames = getKoreanHolidayNames(day);
-  const tooltipParts = [...holidayNames];
+  const solarTermNames = getKoreanSolarTermNames(day);
+  const dayLabels = [...solarTermNames];
+  const tooltipParts = [...holidayNames, ...dayLabels];
 
   return (
     <div
@@ -49,7 +52,7 @@ export function DayCell({
           "border-border/40 bg-muted/50 text-muted-foreground opacity-60 hover:opacity-80",
       )}
     >
-      <div className={cn("flex flex-wrap items-center gap-x-1", compact ? "mb-0.5" : "mb-1")}>
+      <div className={cn("flex flex-wrap items-center gap-x-1 gap-y-0.5", compact ? "mb-0.5" : "mb-1")}>
         <span
           className={cn(
             "inline-flex shrink-0 items-center justify-center rounded-full font-medium",
@@ -61,6 +64,18 @@ export function DayCell({
         >
           {day.getDate()}
         </span>
+        {dayLabels.map((label) => (
+          <span
+            key={label}
+            className={cn(
+              "leading-none text-muted-foreground",
+              compact ? "text-[9px]" : "text-[10px]",
+              isAdjacentMonth && "text-muted-foreground/70",
+            )}
+          >
+            {label}
+          </span>
+        ))}
       </div>
 
       {eventAreaHeight > 0 && (

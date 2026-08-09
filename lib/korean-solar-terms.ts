@@ -1,4 +1,3 @@
-import { format } from "date-fns";
 import { calculateFourPillars, getSolarTermsOfYear } from "manseryeok";
 
 const KST_TIME_ZONE = "Asia/Seoul";
@@ -6,10 +5,6 @@ const KST_TIME_ZONE = "Asia/Seoul";
 type Ymd = { year: number; month: number; day: number };
 
 const yearLabelCache = new Map<number, Map<string, string[]>>();
-
-function toDateString(date: Date): string {
-  return format(date, "yyyy-MM-dd");
-}
 
 function toKstYmd(date: Date): Ymd {
   const [year, month, day] = date
@@ -115,6 +110,7 @@ function getYearLabelMap(year: number): Map<string, string[]> {
 }
 
 export function getKoreanSolarTermNames(date: Date): string[] {
-  const dateKey = toDateString(date);
-  return getYearLabelMap(date.getFullYear()).get(dateKey) ?? [];
+  const kst = toKstYmd(date);
+  const dateKey = toYmdString(kst);
+  return getYearLabelMap(kst.year).get(dateKey) ?? [];
 }
