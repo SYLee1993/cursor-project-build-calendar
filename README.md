@@ -54,7 +54,9 @@ Cursor **Supabase MCP**도 동일 프로젝트(`nmdsvlifextgbyzqdinf`)에 연결
 ### Auth
 
 - 이메일 매직 링크 로그인
-- Redirect URL: `http://localhost:3000/auth/callback` (Supabase Auth → URL Configuration에 등록)
+- Redirect URL (Supabase Auth → URL Configuration):
+  - 로컬: `http://localhost:3000/auth/callback`
+  - 배포: `https://personal-calendar.vercel.app/auth/callback`
 
 ## 로컬 실행
 
@@ -81,13 +83,21 @@ npm run dev
 
 ## GitHub & Vercel 배포
 
-1. GitHub repo 생성 후 push
-2. [Vercel](https://vercel.com)에서 GitHub repo import
-3. Environment Variables 추가:
+**Repository:** [SYLee1993/Personal_Calendar](https://github.com/SYLee1993/Personal_Calendar)  
+**배포 URL (권장):** [https://personal-calendar.vercel.app](https://personal-calendar.vercel.app)
+
+1. GitHub에 push (`git push origin master:main`)
+2. [Vercel](https://vercel.com)에서 `Personal_Calendar` repo 연결
+3. Vercel **Settings → General → Project Name**을 `personal-calendar`로 변경 (`.vercel.app` 주소 반영)
+4. Environment Variables 추가:
    - `NEXT_PUBLIC_SUPABASE_URL`
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-4. Supabase Auth Redirect URLs에 배포 URL `/auth/callback` 추가
-5. Deploy
+5. Supabase [URL Configuration](https://supabase.com/dashboard/project/nmdsvlifextgbyzqdinf/auth/url-configuration):
+   - Site URL: `https://personal-calendar.vercel.app`
+   - Redirect URLs: `https://personal-calendar.vercel.app/auth/callback`
+6. Deploy (또는 Redeploy)
+
+> GitHub repo 이름 변경만으로는 Vercel URL이 바뀌지 않습니다. Vercel 프로젝트 이름을 `personal-calendar`로 바꿔야 `personal-calendar.vercel.app`을 사용할 수 있습니다.
 
 ## 데이터 이전
 
